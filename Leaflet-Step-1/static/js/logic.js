@@ -1,6 +1,6 @@
 // Store API endpoint inside queryUrl
 
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson"
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
 
 // Perform a GET request to the queryUrl
 
@@ -8,23 +8,71 @@ d3.json(queryUrl, function (data){
 
     // Once we get a data, send the data.features object to the createFeatures function
 
-    createFeatures(data);
+    creatFeatures(data);
 })
 
+// Determine the size of markers to reflect the earthquake magnitude
+
+function markerSize(magnitude){
+    return (magnitude + 1) * 2;
+}
+
+// Assign different colors to better represent / showcase the earthquake magnitude
+
+function markerColor(magnitude){
+    if (magnitude > 5){
+        return "yellow";
+    }
+
+    else if (magnitude > 4){
+        return "blue";
+    }
+
+    else if (magnitude > 3){
+        return "green";
+    }
+
+    else if (magnitude > 2){
+        return "red";
+    }
+
+    else if (magnitude > 1){
+        return "pink";
+    }
+}
+
 function creatFeatures(earthquakeData){
+
+    // Define a function to set the maker style
+
+    function dataStyle(feature){
+      return{
+        opacity: .7,
+        fillOpacity: .7,
+        fillColor: markerColor(feature.properties.magnitude),
+        color: "#000000", 
+        radius: markerSize(feature.properties.magnitude),
+        stroke: true,
+        weight: 0.75
+      };
+    }
 
     // Define a function to run once for each feature in the features array
     // Given each feature a popup describing the place and time of the earthquake
 
     function onEachFeature(feature,layer){
-        layer.bindPopup("<h3>" + feature.properties.place + "</h3><hr><p>" + new Date (feature.properties.time) + "</p>");
+        layer.bindPopup("<h3>" + feature.properties.place + "</h3><hr><p>" + Date (feature.properties.time) + "</p>");
     }
 
     // Create a GeoJSON layer containing the features array on the earthquake data object
     // Run the onEachFeature function once for each piece of data in the array
 
     var earthquakes = L.geoJSON(earthquakeData, {
-        onEachFeature: onEachFeature
+        onEachFeature: onEachFeature,
+        pointToLayer: function(feature, latlng){
+          return L.circleMarker(latlng);
+        },
+        style: dataStyle
     });
 
     // Sending the earthquakes layer to the createMap function
@@ -77,5 +125,30 @@ function createMap(earthquakes) {
     L.control.layers(baseMaps, overlayMaps, {
       collapsed: false
     }).addTo(myMap);
+
+    // Set up the legend.
+    var legend = L.control({ position: 'bottomright' });
+
+    legend.onAdd = function () {
+
+        var div = L.DomUtil.create('div', 'info legend');
+        var magnitude = [0, 1, 2, 3, 4, 5],
+            labels = [];
+
+        div.innerHTML = "<div style='background-color:white; padding: .5em;'><h4 style='background-color:white; padding:.5em'>Magnitude</h4><ul>";
+
+        for (var i = 0; i < magnitude.length; i++) {
+             div.innerHTML += 
+             '<li style=\"list-style:none; padding:.5em; background-color:' + markerColor(magnitude[i] + 1) + ';\"> '+ 
+                magnitude[i] + (magnitude[i + 1] ? '&ndash;' + magnitude[i + 1] + '<br>' : '+')
+                "</li>";
+        }
+       div.innerHTML += "</ul></div>"; 
+
+        return div;
+    };
+
+    // Adding legend to the map.
+    legend.addTo(myMap);
   }
   
