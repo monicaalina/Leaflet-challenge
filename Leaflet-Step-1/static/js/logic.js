@@ -21,23 +21,23 @@ function markerSize(magnitude){
 
 function markerColor(magnitude){
     if (magnitude > 5){
-        return "yellow";
+        return "Yellow";
     }
 
     else if (magnitude > 4){
-        return "blue";
+        return "Blue";
     }
 
     else if (magnitude > 3){
-        return "green";
+        return "Green";
     }
 
     else if (magnitude > 2){
-        return "red";
+        return "Red";
     }
 
     else if (magnitude > 1){
-        return "pink";
+        return "Pink";
     }
 }
 
@@ -47,10 +47,10 @@ function creatFeatures(earthquakeData){
 
     function dataStyle(feature){
       return{
-        opacity: .7,
-        fillOpacity: .7,
-        fillColor: markerColor(feature.properties.magnitude),
-        color: "#000000", 
+        opacity: 0.7,
+        fillOpacity: 0.7,
+        color: "red", 
+        fillColor: markerColor(feature.properties.magnitude),        
         radius: markerSize(feature.properties.magnitude),
         stroke: true,
         weight: 0.75
@@ -135,7 +135,7 @@ function createMap(earthquakes) {
         var magnitude = [0, 1, 2, 3, 4, 5],
             labels = [];
 
-        div.innerHTML = "<div style='background-color:white; padding: .5em;'><h4 style='background-color:white; padding:.5em'>Magnitude</h4><ul>";
+        div.innerHTML = "<div style='background-color:white; padding: .5em;'><h4 style='background-color:white; padding:.5em'> Earthquakes Magnitude Legend</h4><ul>";
 
         for (var i = 0; i < magnitude.length; i++) {
              div.innerHTML += 
@@ -150,5 +150,5 @@ function createMap(earthquakes) {
 
     // Adding legend to the map.
     legend.addTo(myMap);
-  }
+}
   
