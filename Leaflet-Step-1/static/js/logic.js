@@ -2,6 +2,14 @@
 
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
 
+
+// Determine the size of markers to reflect the earthquake magnitude
+
+function markerSize(magnitude){
+  return (magnitude + 1) * 2;
+}
+
+
 // Perform a GET request to the queryUrl
 
 d3.json(queryUrl, function (data){
@@ -11,78 +19,79 @@ d3.json(queryUrl, function (data){
     creatFeatures(data);
 })
 
-// Determine the size of markers to reflect the earthquake magnitude
+function creatFeatures(earthquakeData){
 
-function markerSize(magnitude){
-    return (magnitude + 1) * 2;
+  // Define a function to set the maker style
+
+  function dataStyle(feature){
+    return{
+      opacity: 0.7,
+      fillOpacity: 0.7,
+      color: "red", 
+      fillColor: markerColor(feature.properties.mag),        
+      radius: markerSize(feature.properties.mag),
+      stroke: true,
+      weight: 0.75
+    };
+  }
+
+  // Define a function to run once for each feature in the features array
+  // Given each feature a popup describing the place and time of the earthquake
+
+  function onEachFeature(feature,layer){
+      layer.bindPopup("<h3>" + feature.properties.place + "</h3><hr><p>" + Date (feature.properties.time) + "</p>");
+  }
+
+  // Create a GeoJSON layer containing the features array on the earthquake data object
+  // Run the onEachFeature function once for each piece of data in the array
+
+  var earthquakes = L.geoJSON(earthquakeData, {
+      onEachFeature: onEachFeature,
+      pointToLayer: function(feature, latlng){
+        return L.circleMarker(latlng);
+      },
+      style: dataStyle
+  });
+
+  // Sending the earthquakes layer to the createMap function
+
+  createMap(earthquakes);
 }
+
 
 // Assign different colors to better represent / showcase the earthquake magnitude
 
 function markerColor(magnitude){
     if (magnitude > 5){
-        return "Yellow";
-    }
-
-    else if (magnitude > 4){
-        return "Blue";
-    }
-
-    else if (magnitude > 3){
-        return "Green";
-    }
-
-    else if (magnitude > 2){
         return "Red";
     }
 
+    else if (magnitude > 4){
+        return "Darkorange";
+    }
+
+    else if (magnitude > 3){
+        return "Yellow";
+    }
+
+    else if (magnitude > 2){
+        return "Magenta";
+    }
+
     else if (magnitude > 1){
-        return "Pink";
-    }
-}
-
-function creatFeatures(earthquakeData){
-
-    // Define a function to set the maker style
-
-    function dataStyle(feature){
-      return{
-        opacity: 0.7,
-        fillOpacity: 0.7,
-        color: "red", 
-        fillColor: markerColor(feature.properties.magnitude),        
-        radius: markerSize(feature.properties.magnitude),
-        stroke: true,
-        weight: 0.75
-      };
+        return "Lime";
     }
 
-    // Define a function to run once for each feature in the features array
-    // Given each feature a popup describing the place and time of the earthquake
-
-    function onEachFeature(feature,layer){
-        layer.bindPopup("<h3>" + feature.properties.place + "</h3><hr><p>" + Date (feature.properties.time) + "</p>");
+    else {
+        return "Deepskyblue"
     }
+};
 
-    // Create a GeoJSON layer containing the features array on the earthquake data object
-    // Run the onEachFeature function once for each piece of data in the array
 
-    var earthquakes = L.geoJSON(earthquakeData, {
-        onEachFeature: onEachFeature,
-        pointToLayer: function(feature, latlng){
-          return L.circleMarker(latlng);
-        },
-        style: dataStyle
-    });
-
-    // Sending the earthquakes layer to the createMap function
-
-    createMap(earthquakes);
-}
 
 function createMap(earthquakes) {
 
-    // Define streetmap and darkmap layers
+    // Define different types of layers
     var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
       attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
       tileSize: 512,
