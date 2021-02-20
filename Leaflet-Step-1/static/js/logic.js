@@ -25,8 +25,8 @@ function creatFeatures(earthquakeData){
 
   function dataStyle(feature){
     return{
-      opacity: 0.7,
-      fillOpacity: 0.7,
+      opacity: 0.8,
+      fillOpacity: 0.8,
       color: "black", 
       fillColor: markerColor(feature.properties.mag),        
       radius: markerSize(feature.properties.mag),
