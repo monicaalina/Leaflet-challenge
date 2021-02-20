@@ -6,7 +6,7 @@ var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_we
 // Determine the size of markers to reflect the earthquake magnitude
 
 function markerSize(magnitude){
-  return (magnitude + 1) * 2;
+  return magnitude * 5;
 }
 
 
